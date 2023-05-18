@@ -283,15 +283,18 @@ const actions = {
       return await dispatch("signMultisigByWC", { msigTx, signator });
     } else if (signatorAccount.sk) {
       // sk account
-      return await dispatch("signMultisigBySk", { msigTx, signator, txn });
+      return await dispatch("signMultisigBySk", { msigTx, signator });
     }
   },
-  async signMultisigBySk({ dispatch, commit }, { msigTx, signator, txn }) {
+  async signMultisigBySk({ dispatch, commit }, { msigTx, signator }) {
     let signatorAccount = this.state.wallet.privateAccounts.find(
       (a) => a.addr == signator
     );
     if (!signatorAccount) throw Error(`Signator account ${signator} not found`);
     const signedTxn = algosdk.decodeObj(msigTx);
+    const txn = algosdk.decodeUnsignedTransaction(
+      algosdk.encodeObj(signedTxn.txn)
+    );
     const sender = algosdk.encodeAddress(signedTxn.txn.snd);
     let fromAccount = this.state.wallet.privateAccounts.find(
       (a) => a.addr == sender
